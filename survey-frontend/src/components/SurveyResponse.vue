@@ -6,12 +6,12 @@
         <p @click="toggleQuestion(question.id)" class="question-text">{{ question.text }}</p>
         <div v-if="visibleQuestions.includes(question.id)">
           <div v-if="question.question_type === 'text'">
-            <input type="text" v-model="responses[question.id]" :required="question.required" />
+            <input type="text" v-model="responses[question.id]" />
           </div>
           <div v-else-if="question.question_type === 'multiple_choice'">
             <div v-for="choice in question.choices" :key="choice.id">
               <label>
-                <input type="radio" :name="'question_' + question.id" :value="choice.text" v-model="responses[question.id]" :required="question.required" />
+                <input type="radio" :name="'question_' + question.id" :value="choice.text" v-model="responses[question.id]" />
                 {{ choice.text }}
               </label>
             </div>
@@ -49,9 +49,9 @@ export default {
         this.survey = response.data;
         response.data.questions.forEach(question => {
           if (question.question_type === 'checkbox') {
-            this.responses[question.id] = [];
+            this.$set(this.responses, question.id, []);
           } else {
-            this.responses[question.id] = '';
+            this.$set(this.responses, question.id, '');
           }
         });
       })
@@ -84,12 +84,24 @@ export default {
       this.responses[questionId] = selectedChoices;
     },
     async submitResponse() {
-      const response = {
-        survey: this.survey.id,
-      };
+      // Validate required fields
+      for (const question of this.survey.questions) {
+        if (question.required) {
+          if (question.question_type === 'checkbox' && (!this.responses[question.id] || this.responses[question.id].length === 0)) {
+            alert(`Please answer the required question: ${question.text}`);
+            return;
+          }
+          if (question.question_type !== 'checkbox' && !this.responses[question.id]) {
+            alert(`Please answer the required question: ${question.text}`);
+            return;
+          }
+        }
+      }
 
       try {
-        const responseData = await axios.post('http://127.0.0.1:8000/polls/responses/', response);
+        const responseData = await axios.post('http://127.0.0.1:8000/polls/responses/', {
+          survey: this.survey.id,
+        });
         const responseId = responseData.data.id;
         
         const answerPromises = this.survey.questions.map(question => {
