@@ -1,5 +1,3 @@
-# polls/models.py
-
 from django.db import models
 from django.utils import timezone
 import datetime
@@ -8,7 +6,7 @@ class Survey(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    password = models.CharField(max_length=100, blank=True) 
     def __str__(self):
         return self.title
 
@@ -35,7 +33,7 @@ class Choice(models.Model):
     question = models.ForeignKey(Question, related_name='choices', on_delete=models.CASCADE)
     text = models.CharField(max_length=200)
 
-    def __str__(self):
+def __str__(self):
         return self.text
 
 class Response(models.Model):

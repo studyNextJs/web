@@ -9,18 +9,23 @@ class ChoiceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class QuestionSerializer(serializers.ModelSerializer):
-    choices = ChoiceSerializer(many=True, read_only=True)
-
     class Meta:
         model = Question
-        fields = '__all__'
+        fields = ['id', 'text', 'question_type', 'required']
 
 class SurveySerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True, read_only=True)
+    questions = QuestionSerializer(many=True)
 
     class Meta:
         model = Survey
-        fields = '__all__'
+        fields = ['id', 'title', 'description', 'password', 'created_at', 'questions']
+
+    def create(self, validated_data):
+        questions_data = validated_data.pop('questions')
+        survey = Survey.objects.create(**validated_data)
+        for question_data in questions_data:
+            Question.objects.create(survey=survey, **question_data)
+        return survey
 
 class ResponseSerializer(serializers.ModelSerializer):
     class Meta:

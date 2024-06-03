@@ -13,4 +13,5 @@ router.register(r'answers', AnswerViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+     path('questions/<int:pk>/update_with_password/', QuestionViewSet.as_view({'put': 'update_with_password'}), name='question-update-with-password')
 ]
