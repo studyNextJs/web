@@ -28,27 +28,28 @@
           <v-btn color="primary" @click="addNewQuestion">Add Question</v-btn>
           <v-row>
             <v-col v-for="question in filteredQuestions" :key="question.id" cols="12">
-              <v-expand-transition>
-                <v-card @click="toggleQuestion(question.id)" class="question-card ma-3">
-                  <v-card-title @click.stop>{{ question.text || 'New Question' }}</v-card-title>
-                  <v-card-subtitle @click.stop>{{ question.question_type }}</v-card-subtitle>
-                  <v-card-actions @click.stop>
-                    <v-btn icon @click.stop="markQuestionForDeletion(question.id)">
-                      <v-icon>mdi-delete</v-icon>
-                    </v-btn>
-                  </v-card-actions>
-                  <v-card-text v-if="visibleQuestions.includes(question.id)" @click.stop>
-                    <v-text-field v-model="question.text" label="Question Text" />
+              <v-card class="question-card ma-3">
+                <v-card-title @click="toggleQuestion(question.id)">{{ question.text || 'New Question' }}</v-card-title>
+                <v-card-subtitle>{{ question.question_type }}</v-card-subtitle>
+                <v-card-actions>
+                  <v-btn icon @click.stop="markQuestionForDeletion(question.id)">
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </v-card-actions>
+                <v-expand-transition>
+                  <v-card-text v-if="visibleQuestions.includes(question.id)">
+                    <v-text-field v-model="question.text" label="Question Text" @input="updateQuestion(question)" />
                     <v-select
                       v-model="question.question_type"
                       :items="questionTypes"
                       label="Question Type"
+                      @change="updateQuestion(question)"
                     ></v-select>
-                    <v-checkbox v-model="question.required" label="Required" />
+                    <v-checkbox v-model="question.required" label="Required" @change="updateQuestion(question)" />
                     <div v-if="question.question_type === 'multiple_choice' || question.question_type === 'checkbox'">
                       <v-row v-for="(choice, index) in question.choices" :key="index">
                         <v-col>
-                          <v-text-field v-model="choice.text" label="Choice Text" />
+                          <v-text-field v-model="choice.text" label="Choice Text" @input="updateQuestion(question)" />
                         </v-col>
                         <v-col cols="auto">
                           <v-btn icon @click.stop="deleteChoice(question.id, index)">
@@ -59,8 +60,8 @@
                       <v-btn color="primary" @click.stop="addChoice(question.id)">Add Choice</v-btn>
                     </div>
                   </v-card-text>
-                </v-card>
-              </v-expand-transition>
+                </v-expand-transition>
+              </v-card>
             </v-col>
           </v-row>
         </v-card-text>
@@ -70,8 +71,8 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapMutations } from 'vuex';
 import axios from 'axios';
+import { mapState, mapActions, mapMutations } from 'vuex';
 
 export default {
   data() {
@@ -84,14 +85,14 @@ export default {
     ...mapState(['survey']),
     filteredQuestions() {
       return this.survey.questions.filter(question => !question.deleted);
-    }
+    },
   },
   created() {
     const surveyId = this.$route.params.id;
     this.loadSurvey(surveyId);
   },
   methods: {
-    ...mapActions(['loadSurvey', 'saveSurveyToApi']),
+    ...mapActions(['loadSurvey', 'saveSurvey']),
     ...mapMutations(['addQuestion', 'removeQuestion', 'updateQuestion']),
     toggleQuestion(questionId) {
       const index = this.visibleQuestions.indexOf(questionId);
@@ -109,25 +110,28 @@ export default {
         required: false,
         choices: [],
         deleted: false,
-        survey: this.survey.id
       };
       this.addQuestion(newQuestion);
       this.visibleQuestions.push(newQuestion.id);
     },
     markQuestionForDeletion(questionId) {
-      this.removeQuestion(questionId);
+      const question = this.survey.questions.find(q => q.id === questionId);
+      if (question) {
+        question.deleted = true;
+        this.updateQuestion(question);
+      }
     },
     addChoice(questionId) {
       const question = this.survey.questions.find(q => q.id === questionId);
       if (question) {
-        question.choices.push({ text: '', deleted: false });
+        question.choices.push({ text: '' });
         this.updateQuestion(question);
       }
     },
     deleteChoice(questionId, choiceIndex) {
       const question = this.survey.questions.find(q => q.id === questionId);
       if (question && choiceIndex !== -1) {
-        question.choices[choiceIndex].deleted = true;
+        question.choices.splice(choiceIndex, 1);
         this.updateQuestion(question);
       }
     },
@@ -165,8 +169,22 @@ export default {
       }
     },
     async saveSurvey() {
-      await this.saveSurveyToApi();
-    }
+      try {
+        await this.saveSurveyToApi();
+        this.$router.push({ name: 'surveyDetail', params: { id: this.survey.id } });
+      } catch (error) {
+        console.error('Error saving survey:', error);
+      }
+    },
+    async saveSurveyToApi() {
+      try {
+        const response = await axios.put(`http://127.0.0.1:8000/polls/surveys/${this.survey.id}/`, this.survey);
+        return response.data;
+      } catch (error) {
+        console.error('Error saving survey to API:', error.response?.data || error.message);
+        throw error;
+      }
+    },
   },
 };
 </script>
