@@ -39,24 +39,6 @@
         </v-card-text>
       </v-card>
     </v-container>
-
-    <!-- Password Dialog -->
-    <v-dialog v-model="passwordDialog" max-width="500px">
-      <v-card>
-        <v-card-title>Enter Password</v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="password"
-            label="Password"
-            type="password"
-          ></v-text-field>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="primary" @click="verifyPassword">Submit</v-btn>
-          <v-btn color="secondary" @click="passwordDialog = false">Cancel</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -112,7 +94,7 @@ export default {
     async restartSurvey() {
       const surveyId = this.$route.params.id;
       try {
-        await axios.patch(`http://127.0.0.1:8000/polls/surveys/${surveyId}/complete/`, { completed: false });
+        await axios.patch(`http://127.0.0.1:8000/polls/surveys/${surveyId}/start/`, { completed: false });
         this.survey.completed = false;
       } catch (error) {
         console.error('Error restarting survey:', error.response.data);
