@@ -5,23 +5,30 @@ from .models import Survey, Question, Choice, Response, Answer
 from .serializers import SurveySerializer, QuestionSerializer, ChoiceSerializer, ResponseSerializer, AnswerSerializer
 
 class SurveyViewSet(viewsets.ModelViewSet):
-    queryset = Survey.objects.all()
+    queryset = Survey.objects.filter(deleted=False)
     serializer_class = SurveySerializer
 
     @action(detail=True, methods=['patch'])
     def complete(self, request, pk=None):
         survey = self.get_object()
-        survey.is_stopped = True
+        survey.completed = True
         survey.save()
-        return Response({'status': 'survey completed'}, status=status.HTTP_200_OK)
+        return DRFResponse({'status': 'survey completed'}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['patch'])
     def start(self, request, pk=None):
         survey = self.get_object()
-        survey.is_stopped = False
+        survey.completed = False
         survey.save()
-        return Response({'status': 'survey started'}, status=status.HTTP_200_OK)
-    
+        return DRFResponse({'status': 'survey started'}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['patch'])
+    def delete(self, request, pk=None):
+        survey = self.get_object()
+        survey.deleted = True
+        survey.save()
+        return DRFResponse({'status': 'survey deleted'}, status=status.HTTP_200_OK)
+
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
@@ -36,9 +43,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(question, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
-            return Response(serializer.data)
+            return DRFResponse(serializer.data)
         else:
-            return Response({'detail': 'Incorrect password.'}, status=status.HTTP_403_FORBIDDEN)
+            return DRFResponse({'detail': 'Incorrect password.'}, status=status.HTTP_403_FORBIDDEN)
 
 class ChoiceViewSet(viewsets.ModelViewSet):
     queryset = Choice.objects.all()

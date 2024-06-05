@@ -8,6 +8,8 @@ class Survey(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     password = models.CharField(max_length=100, blank=True) 
     completed = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False)  # Soft delete
+
     def __str__(self):
         return self.title
 
