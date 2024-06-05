@@ -1,12 +1,21 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
 import os
 import sys
-
+from pathlib import Path
+from dotenv import load_dotenv
 
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'surveyor.settings')
+
+    # Load environment variables
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    ENVIRONMENT = os.getenv('DJANGO_ENVIRONMENT', 'development')
+    env_file = BASE_DIR / ('.env' if ENVIRONMENT == 'production' else '.env.development')
+
+    # Ensure to load the .env file from the correct path
+    load_dotenv(dotenv_path=env_file)
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

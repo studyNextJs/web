@@ -5,7 +5,7 @@ module.exports = defineConfig({
   devServer: {
     proxy: {
       '/polls': {
-        target: 'http://127.0.0.1:8000',  // Django 서버 주소
+        target: process.env.VUE_APP_API_BASE_URL,  
         changeOrigin: true,
       }
     }
