@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status
-from rest_framework.response import Response
+from rest_framework.response import Response as DRFResponse 
 from rest_framework.decorators import action
 from .models import Survey, Question, Choice, Response, Answer
 from .serializers import SurveySerializer, QuestionSerializer, ChoiceSerializer, ResponseSerializer, AnswerSerializer
@@ -8,6 +8,13 @@ class SurveyViewSet(viewsets.ModelViewSet):
     queryset = Survey.objects.all()
     serializer_class = SurveySerializer
 
+    @action(detail=True, methods=['patch'])
+    def complete(self, request, pk=None):
+        survey = self.get_object()
+        # 여기서 survey 상태를 완료로 설정
+        survey.completed = True
+        survey.save()
+        return DRFResponse({'status': 'survey completed'}, status=status.HTTP_200_OK)
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer

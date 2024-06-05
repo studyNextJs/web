@@ -1,5 +1,3 @@
-# polls/serializers.py
-
 from rest_framework import serializers
 from .models import Survey, Question, Choice, Response, Answer
 
@@ -10,10 +8,11 @@ class ChoiceSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     choices = ChoiceSerializer(many=True, required=False)
+    survey = serializers.PrimaryKeyRelatedField(queryset=Survey.objects.all())
 
     class Meta:
         model = Question
-        fields = ['id', 'text', 'question_type', 'required', 'choices']
+        fields = ['id', 'text', 'question_type', 'required', 'choices', 'survey']
 
     def create(self, validated_data):
         choices_data = validated_data.pop('choices', [])
