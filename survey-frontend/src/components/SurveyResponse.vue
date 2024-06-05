@@ -9,10 +9,10 @@
           <div v-for="question in survey.questions" :key="question.id">
             <v-expand-transition>
               <v-card @click="toggleQuestion(question.id)" class="question-card" v-if="!visibleQuestions.includes(question.id)">
-                <v-card-title>{{ question.text }}</v-card-title>
+                <v-card-title class="left-align">{{ question.text }}</v-card-title>
               </v-card>
               <v-card class="question-card" v-else>
-                <v-card-title>{{ question.text }}</v-card-title>
+                <v-card-title class="left-align">{{ question.text }}</v-card-title>
                 <v-card-text>
                   <div v-if="question.question_type === 'text'">
                     <v-text-field v-model="responses[question.id]" label="Your answer" />
@@ -141,5 +141,9 @@ export default {
 
 .question-card {
   margin-bottom: 10px;
+}
+
+.left-align {
+  text-align: left;
 }
 </style>

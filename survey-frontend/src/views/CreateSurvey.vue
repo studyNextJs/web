@@ -1,44 +1,102 @@
 <template>
-  <div>
-    <h1>Create a New Survey</h1>
-    <form @submit.prevent="createSurvey">
-      <div>
-        <label for="title">Title:</label>
-        <input type="text" id="title" v-model="survey.title" required>
-      </div>
-      <div>
-        <label for="description">Description:</label>
-        <textarea id="description" v-model="survey.description"></textarea>
-      </div>
-      <div>
-        <label for="password">Password:</label>
-        <input type="password" id="password" v-model="survey.password" required>
-      </div>
-      <div v-for="(question, qIndex) in survey.questions" :key="qIndex">
-        <label for="question_text">Question Text:</label>
-        <input type="text" v-model="question.text" required>
-        <label for="question_type">Question Type:</label>
-        <select v-model="question.question_type" required>
-          <option value="text">Text</option>
-          <option value="multiple_choice">Multiple Choice</option>
-          <option value="checkbox">Checkbox</option>
-        </select>
-        <label for="required">Required:</label>
-        <input type="checkbox" v-model="question.required">
-        <div v-if="question.question_type === 'multiple_choice' || question.question_type === 'checkbox'">
-          <div v-for="(choice, cIndex) in question.choices" :key="cIndex">
-            <label for="choice_text">Choice Text:</label>
-            <input type="text" v-model="choice.text" required>
-            <button type="button" @click="removeChoice(qIndex, cIndex)">Remove Choice</button>
+  <v-container>
+    <v-card>
+      <v-card-title>
+        <h1>Create a New Survey</h1>
+      </v-card-title>
+      <v-card-text>
+        <form @submit.prevent="createSurvey">
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                label="Title"
+                v-model="survey.title"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-textarea
+                label="Description"
+                v-model="survey.description"
+                rows="4"
+              ></v-textarea>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                label="Password"
+                v-model="survey.password"
+                type="password"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <div v-for="(question, qIndex) in survey.questions" :key="qIndex">
+            <v-card class="question-card">
+              <v-card-title>
+                <v-row>
+                  <v-col cols="11">
+                    <v-text-field
+                      label="Question Text"
+                      v-model="question.text"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="1">
+                    <v-btn icon @click="removeQuestion(qIndex)">
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-card-title>
+              <v-card-text>
+                <v-select
+                  label="Question Type"
+                  :items="['text', 'multiple_choice', 'checkbox']"
+                  v-model="question.question_type"
+                  required
+                ></v-select>
+                <v-checkbox
+                  label="Required"
+                  v-model="question.required"
+                ></v-checkbox>
+                <div v-if="question.question_type === 'multiple_choice' || question.question_type === 'checkbox'">
+                  <v-row v-for="(choice, cIndex) in question.choices" :key="cIndex">
+                    <v-col cols="10">
+                      <v-text-field
+                        label="Choice Text"
+                        v-model="choice.text"
+                        required
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="2">
+                      <v-btn icon @click="removeChoice(qIndex, cIndex)">
+                        <v-icon>mdi-delete</v-icon>
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                  <v-btn @click="addChoice(qIndex)" text>Add Choice</v-btn>
+                </div>
+              </v-card-text>
+            </v-card>
           </div>
-          <button type="button" @click="addChoice(qIndex)">Add Choice</button>
-        </div>
-        <button type="button" @click="removeQuestion(qIndex)">Remove Question</button>
-      </div>
-      <button type="button" @click="addQuestion">Add Question</button>
-      <button type="submit">Create Survey</button>
-    </form>
-  </div>
+          <v-row>
+            <v-col cols="12">
+              <v-btn @click="addQuestion" text>Add Question</v-btn>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-btn type="submit" color="primary">Create Survey</v-btn>
+            </v-col>
+          </v-row>
+        </form>
+      </v-card-text>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
@@ -85,3 +143,23 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.question-card {
+  margin-bottom: 20px;
+}
+
+.v-btn {
+  width: 100%;
+}
+
+.v-btn.icon {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.v-icon {
+  font-size: 18px;
+}
+</style>
