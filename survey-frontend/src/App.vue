@@ -1,14 +1,16 @@
 <template>
   <v-app>
-    <v-container>
-      <v-app-bar app color="primary" dark>
-        <v-toolbar-title>Survey App</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn text to="/">Home</v-btn>
-        <v-btn text to="/question-manager">Question Manager</v-btn>
-      </v-app-bar>
-      <router-view />
-    </v-container>
+    <v-app-bar app color="primary" dark>
+      <v-toolbar-title>Survey App</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn text to="/">Home</v-btn>
+      <v-btn text to="/question-manager">Question Manager</v-btn>
+    </v-app-bar>
+    <v-main>
+      <v-container>
+        <router-view />
+      </v-container>
+    </v-main>
   </v-app>
 </template>
 
