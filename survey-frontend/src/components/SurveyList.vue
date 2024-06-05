@@ -1,13 +1,20 @@
 <template>
-  <div>
+  <v-container>
     <h1>Surveys</h1>
-    <ul>
-      <li v-for="survey in surveys" :key="survey.id">
-        <router-link :to="{ name: 'survey', params: { id: survey.id }}">{{ survey.title }}</router-link>
-      </li>
-    </ul>
-    <router-link to="/create">Create a new survey</router-link>
-  </div>
+    <v-list>
+      <v-list-item
+        v-for="survey in surveys"
+        :key="survey.id"
+        link
+        :to="{ name: 'survey', params: { id: survey.id } }"
+      >
+        <v-list-item-content>
+          <v-list-item-title>{{ survey.title }}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </v-list>
+    <v-btn color="primary" :to="{ path: '/create' }">Create a new survey</v-btn>
+  </v-container>
 </template>
 
 <script>
@@ -30,3 +37,12 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+h1 {
+  margin-bottom: 20px;
+}
+.v-list {
+  margin-bottom: 20px;
+}
+</style>
