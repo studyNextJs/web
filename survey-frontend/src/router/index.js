@@ -5,6 +5,7 @@ import SurveyDetailView from '../views/Survey.vue';
 import SurveyResponseView from '../views/Respond.vue';
 import SurveyThanks from '../components/SurveyThanks.vue';
 import QuestionEdit from '../views/QuestionEdit.vue'; 
+import QuestionManager from '../views/QuestionManager'
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     path: '/edit-question/:id',
     name: 'QuestionEdit',
     component: QuestionEdit
+  },
+  {
+    path: '/question-manager',
+    name: 'question-manager',
+    component: QuestionManager
   }
 ];
 

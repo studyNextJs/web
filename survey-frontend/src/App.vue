@@ -1,10 +1,22 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <v-app>
+    <v-container>
+      <v-app-bar app color="primary" dark>
+        <v-toolbar-title>Survey App</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn text to="/">Home</v-btn>
+        <v-btn text to="/question-manager">Question Manager</v-btn>
+      </v-app-bar>
+      <router-view />
+    </v-container>
+  </v-app>
 </template>
+
+<script>
+export default {
+  name: 'App'
+};
+</script>
 
 <style lang="scss">
 #app {
