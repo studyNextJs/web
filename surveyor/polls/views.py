@@ -1,6 +1,7 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response as DRFResponse 
 from rest_framework.decorators import action
+from django.db import models
+from rest_framework.response import Response as DRFResponse
+from rest_framework import viewsets, status
 from .models import Survey, Question, Choice, Response, Answer
 from .serializers import SurveySerializer, QuestionSerializer, ChoiceSerializer, ResponseSerializer, AnswerSerializer
 
@@ -28,6 +29,35 @@ class SurveyViewSet(viewsets.ModelViewSet):
         survey.deleted = True
         survey.save()
         return DRFResponse({'status': 'survey deleted'}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get'])
+    def statistics(self, request, pk=None):
+        try:
+            survey = Survey.objects.get(pk=pk)
+        except Survey.DoesNotExist:
+            return DRFResponse(status=404)
+
+        statistics = []
+        for question in survey.questions.filter(deleted=False):
+            answers = Answer.objects.filter(question=question)
+            answer_counts = answers.values('text').annotate(count=models.Count('text'))
+            total_answers = answers.count()
+
+            question_stats = {
+                'id': question.id,
+                'text': question.text,
+                'answers': [
+                    {
+                        'text': count['text'],
+                        'count': count['count'],
+                        'percentage': (count['count'] / total_answers) * 100 if total_answers > 0 else 0
+                    }
+                    for count in answer_counts
+                ]
+            }
+            statistics.append(question_stats)
+
+        return DRFResponse({'questions': statistics})
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()

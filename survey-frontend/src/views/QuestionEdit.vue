@@ -9,6 +9,7 @@
           <v-btn color="primary" @click="restartSurvey" :disabled="!survey.completed">Restart Survey</v-btn>
           <v-btn color="warning" @click="stopSurvey" :disabled="survey.completed">Stop Survey</v-btn>
           <v-btn color="error" @click="deleteSurvey">Delete Survey</v-btn>
+          <v-btn color="info" @click="goToStatistics">Statistics</v-btn>
         </v-card-subtitle>
         <v-card-text>
           <form @submit.prevent="saveSurvey">
@@ -92,8 +93,8 @@ export default {
     this.loadSurvey(surveyId);
   },
   methods: {
-    ...mapActions(['loadSurvey', 'saveSurveyToApi', 'updateQuestionInStore']),
-    ...mapMutations(['addQuestion', 'removeQuestion']),
+    ...mapActions(['loadSurvey', 'saveSurveyToApi']),
+    ...mapMutations(['addQuestion', 'removeQuestion', 'updateQuestion']),
     toggleQuestion(questionId) {
       const index = this.visibleQuestions.indexOf(questionId);
       if (index > -1) {
@@ -118,21 +119,21 @@ export default {
       const question = this.survey.questions.find(q => q.id === questionId);
       if (question) {
         question.deleted = true;
-        this.updateQuestionInStore(question);
+        this.updateQuestion(question);
       }
     },
     addChoice(questionId) {
       const question = this.survey.questions.find(q => q.id === questionId);
       if (question) {
         question.choices.push({ text: '' });
-        this.updateQuestionInStore(question);
+        this.updateQuestion(question);
       }
     },
     deleteChoice(questionId, choiceIndex) {
       const question = this.survey.questions.find(q => q.id === questionId);
       if (question && choiceIndex !== -1) {
         question.choices.splice(choiceIndex, 1);
-        this.updateQuestionInStore(question);
+        this.updateQuestion(question);
       }
     },
     async stopSurvey() {
@@ -176,6 +177,12 @@ export default {
         console.error('Error saving survey:', error);
       }
     },
+    goToStatistics() {
+      this.$router.push({ name: 'surveyStatistics', params: { id: this.survey.id } });
+    },
+    updateQuestionInStore(question) {
+      this.updateQuestion(question);
+    }
   },
 };
 </script>
