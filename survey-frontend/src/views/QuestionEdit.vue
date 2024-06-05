@@ -11,7 +11,7 @@
           <v-btn color="error" @click="deleteSurvey">Delete Survey</v-btn>
         </v-card-subtitle>
         <v-card-text>
-          <form @submit.prevent="editSurvey">
+          <form @submit.prevent="saveSurvey">
             <v-text-field v-model="survey.title" label="Title" required></v-text-field>
             <v-textarea v-model="survey.description" label="Description"></v-textarea>
             <v-text-field v-model="survey.password" label="Password" type="password" readonly></v-text-field>
@@ -25,15 +25,15 @@
           <h2>Questions</h2>
         </v-card-title>
         <v-card-text>
-          <v-btn color="primary" @click="addQuestion">Add Question</v-btn>
+          <v-btn color="primary" @click="addNewQuestion">Add Question</v-btn>
           <v-row>
-            <v-col v-for="question in survey.questions" :key="question.id" cols="12">
+            <v-col v-for="question in filteredQuestions" :key="question.id" cols="12">
               <v-expand-transition>
                 <v-card @click="toggleQuestion(question.id)" class="question-card ma-3">
                   <v-card-title @click.stop>{{ question.text || 'New Question' }}</v-card-title>
                   <v-card-subtitle @click.stop>{{ question.question_type }}</v-card-subtitle>
                   <v-card-actions @click.stop>
-                    <v-btn icon @click.stop="deleteQuestion(question.id)">
+                    <v-btn icon @click.stop="markQuestionForDeletion(question.id)">
                       <v-icon>mdi-delete</v-icon>
                     </v-btn>
                   </v-card-actions>
@@ -70,45 +70,64 @@
 </template>
 
 <script>
+import { mapState, mapActions, mapMutations } from 'vuex';
 import axios from 'axios';
 
 export default {
   data() {
     return {
-      survey: {
-        title: '',
-        description: '',
-        password: '',
-        completed: false,
-        deleted: false,
-        questions: []
-      },
       questionTypes: ['text', 'multiple_choice', 'checkbox'],
       visibleQuestions: [],
     };
   },
+  computed: {
+    ...mapState(['survey']),
+    filteredQuestions() {
+      return this.survey.questions.filter(question => !question.deleted);
+    }
+  },
   created() {
-    this.loadSurvey();
+    const surveyId = this.$route.params.id;
+    this.loadSurvey(surveyId);
   },
   methods: {
-    async loadSurvey() {
-      const surveyId = this.$route.params.id;
-      try {
-        const response = await axios.get(`http://127.0.0.1:8000/polls/surveys/${surveyId}/`);
-        this.survey = response.data;
-      } catch (error) {
-        console.error('Error loading survey:', error.response.data);
+    ...mapActions(['loadSurvey', 'saveSurvey']),
+    ...mapMutations(['addQuestion', 'removeQuestion', 'updateQuestion']),
+    toggleQuestion(questionId) {
+      const index = this.visibleQuestions.indexOf(questionId);
+      if (index > -1) {
+        this.visibleQuestions.splice(index, 1);
+      } else {
+        this.visibleQuestions.push(questionId);
       }
     },
-    async editSurvey() {
-      const surveyId = this.$route.params.id;
-      try {
-        const response = await axios.put(`http://127.0.0.1:8000/polls/surveys/${surveyId}/`, this.survey);
-        if (response && response.data) {
-          this.$router.push({ name: 'surveyDetail', params: { id: this.survey.id } });
-        }
-      } catch (error) {
-        console.error('Error updating survey:', error.response?.data || error.message);
+    addNewQuestion() {
+      const newQuestion = {
+        id: null,
+        text: '',
+        question_type: 'text',
+        required: false,
+        choices: [],
+        deleted: false,
+      };
+      this.addQuestion(newQuestion);
+      this.visibleQuestions.push(newQuestion.id);
+    },
+    markQuestionForDeletion(questionId) {
+      this.removeQuestion(questionId);
+    },
+    addChoice(questionId) {
+      const question = this.survey.questions.find(q => q.id === questionId);
+      if (question) {
+        question.choices.push({ text: '' });
+        this.updateQuestion(question);
+      }
+    },
+    deleteChoice(questionId, choiceIndex) {
+      const question = this.survey.questions.find(q => q.id === questionId);
+      if (question && choiceIndex !== -1) {
+        question.choices.splice(choiceIndex, 1);
+        this.updateQuestion(question);
       }
     },
     async stopSurvey() {
@@ -144,46 +163,16 @@ export default {
         console.error('Error deleting survey:', error.response?.data || error.message);
       }
     },
-    toggleQuestion(questionId) {
-      const index = this.visibleQuestions.indexOf(questionId);
-      if (index > -1) {
-        this.visibleQuestions.splice(index, 1);
-      } else {
-        this.visibleQuestions.push(questionId);
+    async saveSurvey() {
+      try {
+        await this.saveSurvey();
+        this.$router.push({ name: 'surveyDetail', params: { id: this.survey.id } });
+      } catch (error) {
+        console.error('Error saving survey:', error.response?.data || error.message);
       }
     },
-    addQuestion() {
-      this.survey.questions.push({
-        id: null, // 새로 추가된 질문은 id가 null임
-        text: '',
-        question_type: 'text',
-        required: false,
-        choices: []
-      });
-      // 새로 추가된 질문을 열기
-      this.visibleQuestions.push(this.survey.questions.length - 1);
-    },
-    deleteQuestion(questionId) {
-      const index = this.survey.questions.findIndex(q => q.id === questionId);
-      if (index !== -1) {
-        this.survey.questions.splice(index, 1);
-      }
-    },
-    addChoice(questionId) {
-      const question = this.survey.questions.find(q => q.id === questionId);
-      if (question) {
-        question.choices.push({ text: '' });
-      }
-    },
-    deleteChoice(questionId, choiceIndex) {
-      const question = this.survey.questions.find(q => q.id === questionId);
-      if (question && choiceIndex !== -1) {
-        question.choices.splice(choiceIndex, 1);
-      }
-    }
   },
 };
-
 </script>
 
 <style scoped>

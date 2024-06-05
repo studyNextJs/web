@@ -25,6 +25,7 @@ class Question(models.Model):
     question_type = models.CharField(max_length=20, choices=QUESTION_TYPES, default='text')
     required = models.BooleanField(default=False)
     pub_date = models.DateTimeField(auto_now_add=True)
+    deleted = models.BooleanField(default=False) 
 
     def __str__(self):
         return self.text
