@@ -1,34 +1,38 @@
 <template>
-  <div>
-    <h1>{{ survey.title }}</h1>
-    <form @submit.prevent="submitResponse">
-      <div v-for="question in survey.questions" :key="question.id">
-        <p @click="toggleQuestion(question.id)" class="question-text">{{ question.text }}</p>
-        <div v-if="visibleQuestions.includes(question.id)">
-          <div v-if="question.question_type === 'text'">
-            <input type="text" v-model="responses[question.id]" />
-          </div>
-          <div v-else-if="question.question_type === 'multiple_choice'">
-            <div v-for="choice in question.choices" :key="choice.id">
-              <label>
-                <input type="radio" :name="'question_' + question.id" :value="choice.text" v-model="responses[question.id]" />
-                {{ choice.text }}
-              </label>
+  <v-container>
+    <v-card>
+      <v-card-title>
+        <h1>{{ survey.title }}</h1>
+      </v-card-title>
+      <v-card-text>
+        <form @submit.prevent="submitResponse">
+          <div v-for="question in survey.questions" :key="question.id">
+            <v-row @click="toggleQuestion(question.id)" class="question-text">
+              <v-col>
+                <p>{{ question.text }}</p>
+              </v-col>
+            </v-row>
+            <div v-if="visibleQuestions.includes(question.id)">
+              <v-row>
+                <v-col v-if="question.question_type === 'text'">
+                  <v-text-field v-model="responses[question.id]" label="Your answer" />
+                </v-col>
+                <v-col v-else-if="question.question_type === 'multiple_choice'">
+                  <v-radio-group v-model="responses[question.id]" :mandatory="question.required">
+                    <v-radio v-for="choice in question.choices" :key="choice.id" :label="choice.text" :value="choice.text" />
+                  </v-radio-group>
+                </v-col>
+                <v-col v-else-if="question.question_type === 'checkbox'">
+                  <v-checkbox v-for="choice in question.choices" :key="choice.id" :label="choice.text" :value="choice.text" @change="updateCheckboxResponses(question.id, choice.text, $event.target.checked)" :input-value="Array.isArray(responses[question.id]) && responses[question.id].includes(choice.text)" />
+                </v-col>
+              </v-row>
             </div>
           </div>
-          <div v-else-if="question.question_type === 'checkbox'">
-            <div v-for="choice in question.choices" :key="choice.id">
-              <label>
-                <input type="checkbox" :value="choice.text" @change="updateCheckboxResponses(question.id, choice.text, $event.target.checked)" :checked="Array.isArray(responses[question.id]) && responses[question.id].includes(choice.text)" />
-                {{ choice.text }}
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <button type="submit">Submit</button>
-    </form>
-  </div>
+          <v-btn type="submit" color="primary">Submit</v-btn>
+        </form>
+      </v-card-text>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
@@ -49,9 +53,9 @@ export default {
         this.survey = response.data;
         response.data.questions.forEach(question => {
           if (question.question_type === 'checkbox') {
-            this.$set(this.responses, question.id, []);
+            this.responses[question.id] = [];
           } else {
-            this.$set(this.responses, question.id, '');
+            this.responses[question.id] = '';
           }
         });
       })
