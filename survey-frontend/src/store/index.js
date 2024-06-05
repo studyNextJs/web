@@ -82,6 +82,9 @@ const store = createStore({
         console.error('Error saving survey:', error.response?.data || error.message);
       }
     },
+    updateQuestionInStore({ commit }, question) {
+      commit('updateQuestion', question);
+    },
   },
 });
 

@@ -38,18 +38,18 @@
                 </v-card-actions>
                 <v-expand-transition>
                   <v-card-text v-if="visibleQuestions.includes(question.id)">
-                    <v-text-field v-model="question.text" label="Question Text" @input="updateQuestion(question)" />
+                    <v-text-field v-model="question.text" label="Question Text" @input="updateQuestionInStore(question)" />
                     <v-select
                       v-model="question.question_type"
                       :items="questionTypes"
                       label="Question Type"
-                      @change="updateQuestion(question)"
+                      @change="updateQuestionInStore(question)"
                     ></v-select>
-                    <v-checkbox v-model="question.required" label="Required" @change="updateQuestion(question)" />
+                    <v-checkbox v-model="question.required" label="Required" @change="updateQuestionInStore(question)" />
                     <div v-if="question.question_type === 'multiple_choice' || question.question_type === 'checkbox'">
                       <v-row v-for="(choice, index) in question.choices" :key="index">
                         <v-col>
-                          <v-text-field v-model="choice.text" label="Choice Text" @input="updateQuestion(question)" />
+                          <v-text-field v-model="choice.text" label="Choice Text" @input="updateQuestionInStore(question)" />
                         </v-col>
                         <v-col cols="auto">
                           <v-btn icon @click.stop="deleteChoice(question.id, index)">
@@ -92,8 +92,8 @@ export default {
     this.loadSurvey(surveyId);
   },
   methods: {
-    ...mapActions(['loadSurvey', 'saveSurvey']),
-    ...mapMutations(['addQuestion', 'removeQuestion', 'updateQuestion']),
+    ...mapActions(['loadSurvey', 'saveSurveyToApi', 'updateQuestionInStore']),
+    ...mapMutations(['addQuestion', 'removeQuestion']),
     toggleQuestion(questionId) {
       const index = this.visibleQuestions.indexOf(questionId);
       if (index > -1) {
@@ -118,21 +118,21 @@ export default {
       const question = this.survey.questions.find(q => q.id === questionId);
       if (question) {
         question.deleted = true;
-        this.updateQuestion(question);
+        this.updateQuestionInStore(question);
       }
     },
     addChoice(questionId) {
       const question = this.survey.questions.find(q => q.id === questionId);
       if (question) {
         question.choices.push({ text: '' });
-        this.updateQuestion(question);
+        this.updateQuestionInStore(question);
       }
     },
     deleteChoice(questionId, choiceIndex) {
       const question = this.survey.questions.find(q => q.id === questionId);
       if (question && choiceIndex !== -1) {
         question.choices.splice(choiceIndex, 1);
-        this.updateQuestion(question);
+        this.updateQuestionInStore(question);
       }
     },
     async stopSurvey() {
@@ -171,18 +171,9 @@ export default {
     async saveSurvey() {
       try {
         await this.saveSurveyToApi();
-        this.$router.push({ name: 'surveyDetail', params: { id: this.survey.id } });
+        this.$router.push({ name: 'home' });
       } catch (error) {
         console.error('Error saving survey:', error);
-      }
-    },
-    async saveSurveyToApi() {
-      try {
-        const response = await axios.put(`http://127.0.0.1:8000/polls/surveys/${this.survey.id}/`, this.survey);
-        return response.data;
-      } catch (error) {
-        console.error('Error saving survey to API:', error.response?.data || error.message);
-        throw error;
       }
     },
   },
