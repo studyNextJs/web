@@ -14,7 +14,7 @@
           <form @submit.prevent="editSurvey">
             <v-text-field v-model="survey.title" label="Title" required></v-text-field>
             <v-textarea v-model="survey.description" label="Description"></v-textarea>
-            <v-text-field v-model="survey.password" label="Password" type="password" required></v-text-field>
+            <v-text-field v-model="survey.password" label="Password" type="password" readonly></v-text-field>
             <v-btn type="submit" color="primary">Save Changes</v-btn>
           </form>
         </v-card-text>
@@ -25,17 +25,44 @@
           <h2>Questions</h2>
         </v-card-title>
         <v-card-text>
-          <v-list>
-            <v-list-item v-for="question in survey.questions" :key="question.id">
-              <v-list-item-content>
-                <v-list-item-title>{{ question.text }}</v-list-item-title>
-                <v-list-item-subtitle>{{ question.question_type }}</v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-action>
-                <v-btn @click="editQuestion(question.id)">Edit</v-btn>
-              </v-list-item-action>
-            </v-list-item>
-          </v-list>
+          <v-btn color="primary" @click="addQuestion">Add Question</v-btn>
+          <v-row>
+            <v-col v-for="question in survey.questions" :key="question.id" cols="12">
+              <v-expand-transition>
+                <v-card @click="toggleQuestion(question.id)" class="question-card ma-3">
+                  <v-card-title @click.stop>{{ question.text || 'New Question' }}</v-card-title>
+                  <v-card-subtitle @click.stop>{{ question.question_type }}</v-card-subtitle>
+                  <v-card-actions @click.stop>
+                    <v-btn icon @click.stop="deleteQuestion(question.id)">
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
+                  </v-card-actions>
+                  <v-card-text v-if="visibleQuestions.includes(question.id)" @click.stop>
+                    <v-text-field v-model="question.text" label="Question Text" />
+                    <v-select
+                      v-model="question.question_type"
+                      :items="questionTypes"
+                      label="Question Type"
+                    ></v-select>
+                    <v-checkbox v-model="question.required" label="Required" />
+                    <div v-if="question.question_type === 'multiple_choice' || question.question_type === 'checkbox'">
+                      <v-row v-for="(choice, index) in question.choices" :key="index">
+                        <v-col>
+                          <v-text-field v-model="choice.text" label="Choice Text" />
+                        </v-col>
+                        <v-col cols="auto">
+                          <v-btn icon @click.stop="deleteChoice(question.id, index)">
+                            <v-icon>mdi-delete</v-icon>
+                          </v-btn>
+                        </v-col>
+                      </v-row>
+                      <v-btn color="primary" @click.stop="addChoice(question.id)">Add Choice</v-btn>
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </v-expand-transition>
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
     </v-container>
@@ -56,8 +83,9 @@ export default {
         deleted: false,
         questions: []
       },
-      passwordDialog: false,
-      password: '',
+      questionTypes: ['text', 'multiple_choice', 'checkbox'],
+      visibleQuestions: [],
+      nextQuestionId: -1, // 임시 ID를 위한 변수 추가
     };
   },
   created() {
@@ -109,8 +137,42 @@ export default {
         console.error('Error deleting survey:', error.response.data);
       }
     },
-    editQuestion(questionId) {
-      this.$router.push({ name: 'question-edit', params: { id: questionId } });
+    toggleQuestion(questionId) {
+      const index = this.visibleQuestions.indexOf(questionId);
+      if (index > -1) {
+        this.visibleQuestions.splice(index, 1);
+      } else {
+        this.visibleQuestions.push(questionId);
+      }
+    },
+    addQuestion() {
+      this.survey.questions.push({
+        id: this.nextQuestionId--, // 임시 ID 설정
+        text: '',
+        question_type: 'text',
+        required: false,
+        choices: []
+      });
+      // 새로 추가된 질문을 열기
+      this.visibleQuestions.push(this.nextQuestionId + 1);
+    },
+    deleteQuestion(questionId) {
+      const index = this.survey.questions.findIndex(q => q.id === questionId);
+      if (index !== -1) {
+        this.survey.questions.splice(index, 1);
+      }
+    },
+    addChoice(questionId) {
+      const question = this.survey.questions.find(q => q.id === questionId);
+      if (question) {
+        question.choices.push({ text: '' });
+      }
+    },
+    deleteChoice(questionId, choiceIndex) {
+      const question = this.survey.questions.find(q => q.id === questionId);
+      if (question && choiceIndex !== -1) {
+        question.choices.splice(choiceIndex, 1);
+      }
     }
   },
 };
@@ -119,5 +181,10 @@ export default {
 <style scoped>
 .v-card {
   margin-top: 20px;
+  width: 100%;
+}
+.question-card {
+  cursor: pointer;
+  width: 100%;
 }
 </style>
