@@ -11,10 +11,17 @@ class SurveyViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['patch'])
     def complete(self, request, pk=None):
         survey = self.get_object()
-        # 여기서 survey 상태를 완료로 설정
-        survey.completed = True
+        survey.is_stopped = True
         survey.save()
-        return DRFResponse({'status': 'survey completed'}, status=status.HTTP_200_OK)
+        return Response({'status': 'survey completed'}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['patch'])
+    def start(self, request, pk=None):
+        survey = self.get_object()
+        survey.is_stopped = False
+        survey.save()
+        return Response({'status': 'survey started'}, status=status.HTTP_200_OK)
+    
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
