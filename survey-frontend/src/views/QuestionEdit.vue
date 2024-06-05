@@ -91,7 +91,7 @@ export default {
     this.loadSurvey(surveyId);
   },
   methods: {
-    ...mapActions(['loadSurvey', 'saveSurvey']),
+    ...mapActions(['loadSurvey', 'saveSurveyToApi']),
     ...mapMutations(['addQuestion', 'removeQuestion', 'updateQuestion']),
     toggleQuestion(questionId) {
       const index = this.visibleQuestions.indexOf(questionId);
@@ -109,6 +109,7 @@ export default {
         required: false,
         choices: [],
         deleted: false,
+        survey: this.survey.id
       };
       this.addQuestion(newQuestion);
       this.visibleQuestions.push(newQuestion.id);
@@ -119,14 +120,14 @@ export default {
     addChoice(questionId) {
       const question = this.survey.questions.find(q => q.id === questionId);
       if (question) {
-        question.choices.push({ text: '' });
+        question.choices.push({ text: '', deleted: false });
         this.updateQuestion(question);
       }
     },
     deleteChoice(questionId, choiceIndex) {
       const question = this.survey.questions.find(q => q.id === questionId);
       if (question && choiceIndex !== -1) {
-        question.choices.splice(choiceIndex, 1);
+        question.choices[choiceIndex].deleted = true;
         this.updateQuestion(question);
       }
     },
@@ -164,13 +165,8 @@ export default {
       }
     },
     async saveSurvey() {
-      try {
-        await this.saveSurvey();
-        this.$router.push({ name: 'surveyDetail', params: { id: this.survey.id } });
-      } catch (error) {
-        console.error('Error saving survey:', error.response?.data || error.message);
-      }
-    },
+      await this.saveSurveyToApi();
+    }
   },
 };
 </script>

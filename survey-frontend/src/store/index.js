@@ -1,9 +1,10 @@
 import { createStore } from 'vuex';
 import axios from 'axios';
 
-export default createStore({
+const store = createStore({
   state: {
     survey: {
+      id: null,
       title: '',
       description: '',
       password: '',
@@ -22,7 +23,7 @@ export default createStore({
     removeQuestion(state, questionId) {
       const question = state.survey.questions.find(q => q.id === questionId);
       if (question) {
-        question.deleted = true; // 소프트 딜리트
+        question.deleted = true;
       }
     },
     updateQuestion(state, updatedQuestion) {
@@ -30,6 +31,17 @@ export default createStore({
       if (index !== -1) {
         state.survey.questions.splice(index, 1, updatedQuestion);
       }
+    },
+    resetSurvey(state) {
+      state.survey = {
+        id: null,
+        title: '',
+        description: '',
+        password: '',
+        completed: false,
+        deleted: false,
+        questions: []
+      };
     }
   },
   actions: {
@@ -41,13 +53,36 @@ export default createStore({
         console.error('Error loading survey:', error.response?.data || error.message);
       }
     },
-    async saveSurvey({ state }) {
+    async saveSurveyToApi({ state }) {
+      const surveyId = state.survey.id;
+      const surveyData = {
+        title: state.survey.title,
+        description: state.survey.description,
+        password: state.survey.password,
+        completed: state.survey.completed,
+        deleted: state.survey.deleted,
+        questions: state.survey.questions.map(question => ({
+          id: question.id,
+          text: question.text,
+          question_type: question.question_type,
+          required: question.required,
+          deleted: question.deleted,
+          survey: state.survey.id,
+          choices: question.choices.map(choice => ({
+            id: choice.id,
+            text: choice.text,
+            deleted: choice.deleted
+          }))
+        }))
+      };
+
       try {
-        const surveyId = state.survey.id;
-        await axios.put(`http://127.0.0.1:8000/polls/surveys/${surveyId}/`, state.survey);
+        await axios.put(`http://127.0.0.1:8000/polls/surveys/${surveyId}/`, surveyData);
       } catch (error) {
-        console.error('Error updating survey:', error.response?.data || error.message);
+        console.error('Error saving survey:', error.response?.data || error.message);
       }
-    }
-  }
+    },
+  },
 });
+
+export default store;

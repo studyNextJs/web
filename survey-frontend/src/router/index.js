@@ -5,7 +5,8 @@ import SurveyDetailView from '../views/Survey.vue';
 import SurveyResponseView from '../views/Respond.vue';
 import SurveyThanks from '../components/SurveyThanks.vue';
 import QuestionEdit from '../views/QuestionEdit.vue'; 
-import QuestionManager from '../views/QuestionManager.vue';
+import QuestionManager from '../views/QuestionManager';
+import store from '../store';
 
 const routes = [
   {
@@ -42,17 +43,22 @@ const routes = [
     path: '/question-manager',
     name: 'question-manager',
     component: QuestionManager
-  },
-  {
-    path: '/survey-detail/:id',
-    name: 'surveyDetail',
-    component: SurveyDetailView
   }
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
+});
+
+router.beforeEach(async (to, from, next) => {
+  const surveyId = to.params.id;
+  if (surveyId) {
+    store.commit('resetSurvey');
+    await store.dispatch('loadSurvey', surveyId);
+    await store.dispatch('saveSurveyToApi');
+  }
+  next();
 });
 
 export default router;
