@@ -1,9 +1,7 @@
 const { defineConfig } = require('@vue/cli-service')
+
 module.exports = defineConfig({
   transpileDependencies: ['vuetify'],
-})
-// vue.config.js
-module.exports = {
   devServer: {
     proxy: {
       '/polls': {
@@ -12,4 +10,4 @@ module.exports = {
       }
     }
   }
-};
+});
