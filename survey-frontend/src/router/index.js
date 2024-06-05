@@ -42,6 +42,11 @@ const routes = [
     path: '/question-manager',
     name: 'question-manager',
     component: QuestionManager
+  },
+  {
+    path: '/survey-detail/:id',
+    name: 'surveyDetail',
+    component: SurveyDetailView
   }
 ];
 

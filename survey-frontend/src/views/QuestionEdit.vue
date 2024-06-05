@@ -85,7 +85,6 @@ export default {
       },
       questionTypes: ['text', 'multiple_choice', 'checkbox'],
       visibleQuestions: [],
-      nextQuestionId: -1, // 임시 ID를 위한 변수 추가
     };
   },
   created() {
@@ -97,8 +96,6 @@ export default {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/polls/surveys/${surveyId}/`);
         this.survey = response.data;
-        // Visible Questions 초기화
-        this.visibleQuestions = this.survey.questions.map(question => question.id);
       } catch (error) {
         console.error('Error loading survey:', error.response.data);
       }
@@ -106,47 +103,45 @@ export default {
     async editSurvey() {
       const surveyId = this.$route.params.id;
       try {
-        await axios.put(`http://127.0.0.1:8000/polls/surveys/${surveyId}/`, this.survey);
-        // 질문 수정도 함께 저장
-        for (const question of this.survey.questions) {
-          if (question.id < 0) {
-            // 임시 ID를 가진 새 질문은 POST로 추가
-            await axios.post(`http://127.0.0.1:8000/polls/questions/`, question);
-          } else {
-            // 기존 질문은 PUT으로 업데이트
-            await axios.put(`http://127.0.0.1:8000/polls/questions/${question.id}/`, question);
-          }
+        const response = await axios.put(`http://127.0.0.1:8000/polls/surveys/${surveyId}/`, this.survey);
+        if (response && response.data) {
+          this.$router.push({ name: 'surveyDetail', params: { id: this.survey.id } });
         }
-        this.$router.push({ name: 'surveyDetail', params: { id: this.survey.id } });
       } catch (error) {
-        console.error('Error updating survey:', error.response.data);
+        console.error('Error updating survey:', error.response?.data || error.message);
       }
     },
     async stopSurvey() {
       const surveyId = this.$route.params.id;
       try {
-        await axios.patch(`http://127.0.0.1:8000/polls/surveys/${surveyId}/complete/`, { completed: true });
-        this.survey.completed = true;
+        const response = await axios.patch(`http://127.0.0.1:8000/polls/surveys/${surveyId}/complete/`, { completed: true });
+        if (response && response.data) {
+          this.survey.completed = true;
+        }
       } catch (error) {
-        console.error('Error stopping survey:', error.response.data);
+        console.error('Error stopping survey:', error.response?.data || error.message);
       }
     },
     async restartSurvey() {
       const surveyId = this.$route.params.id;
       try {
-        await axios.patch(`http://127.0.0.1:8000/polls/surveys/${surveyId}/start/`, { completed: false });
-        this.survey.completed = false;
+        const response = await axios.patch(`http://127.0.0.1:8000/polls/surveys/${surveyId}/start/`, { completed: false });
+        if (response && response.data) {
+          this.survey.completed = false;
+        }
       } catch (error) {
-        console.error('Error restarting survey:', error.response.data);
+        console.error('Error restarting survey:', error.response?.data || error.message);
       }
     },
     async deleteSurvey() {
       const surveyId = this.$route.params.id;
       try {
-        await axios.patch(`http://127.0.0.1:8000/polls/surveys/${surveyId}/delete/`, { deleted: true });
-        this.$router.push({ name: 'home' });
+        const response = await axios.patch(`http://127.0.0.1:8000/polls/surveys/${surveyId}/delete/`, { deleted: true });
+        if (response && response.data) {
+          this.$router.push({ name: 'home' });
+        }
       } catch (error) {
-        console.error('Error deleting survey:', error.response.data);
+        console.error('Error deleting survey:', error.response?.data || error.message);
       }
     },
     toggleQuestion(questionId) {
@@ -158,16 +153,15 @@ export default {
       }
     },
     addQuestion() {
-      const newQuestion = {
-        id: this.nextQuestionId--, // 임시 ID 설정
+      this.survey.questions.push({
+        id: null, // 새로 추가된 질문은 id가 null임
         text: '',
         question_type: 'text',
         required: false,
         choices: []
-      };
-      this.survey.questions.push(newQuestion);
+      });
       // 새로 추가된 질문을 열기
-      this.visibleQuestions.push(newQuestion.id);
+      this.visibleQuestions.push(this.survey.questions.length - 1);
     },
     deleteQuestion(questionId) {
       const index = this.survey.questions.findIndex(q => q.id === questionId);
@@ -189,6 +183,7 @@ export default {
     }
   },
 };
+
 </script>
 
 <style scoped>
