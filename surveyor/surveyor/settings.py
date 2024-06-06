@@ -1,4 +1,5 @@
 import os
+from django.core.management.utils import get_random_secret_key
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -143,3 +144,24 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SECURE_HSTS_SECONDS = 31536000  # 1년
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# SECURE_SSL_REDIRECT 설정
+SECURE_SSL_REDIRECT = True
+
+# SESSION_COOKIE_SECURE 설정
+SESSION_COOKIE_SECURE = True
+
+# CSRF_COOKIE_SECURE 설정
+CSRF_COOKIE_SECURE = True
+
+# SECRET_KEY 설정
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', get_random_secret_key())
+
+# 보안 관련 기타 설정
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
