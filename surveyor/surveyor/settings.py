@@ -3,7 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ENVIRONMENT = os.getenv('DJANGO_ENVIRONMENT', 'development')
 env_file = BASE_DIR / ('.env' if ENVIRONMENT == 'production' else '.env.development')
 
@@ -136,7 +136,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, '../survey-frontend/dist'),
+   os.path.join(BASE_DIR, 'survey-frontend/dist'),
 ]
 
 # Default primary key field type
