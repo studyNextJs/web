@@ -21,7 +21,8 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-$#%*42nyx9^pmvs$7+b28m*ru#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['13.125.28.173', '127.0.0.1', 'seulgi97.duckdns.org']
+ALLOWED_HOSTS = ['seulgi97.duckdns.org', 'www.seulgi97.duckdns.org', '127.0.0.1']
+
 
 
 # Application definition
