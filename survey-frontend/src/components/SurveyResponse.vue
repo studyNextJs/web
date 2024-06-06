@@ -49,7 +49,7 @@ export default {
   },
   created() {
     const surveyId = this.$route.params.id;
-    axios.get(`http://127.0.0.1:8000/polls/surveys/${surveyId}/`)
+    axios.get(`http://13.125.28.173:8000/polls/surveys/${surveyId}/`)
       .then(response => {
         this.survey = response.data;
         response.data.questions.forEach(question => {
@@ -104,7 +104,7 @@ export default {
       }
 
       try {
-        const responseData = await axios.post('http://127.0.0.1:8000/polls/responses/', {
+        const responseData = await axios.post('http://13.125.28.173:8000/polls/responses/', {
           survey: this.survey.id,
         });
         const responseId = responseData.data.id;
@@ -116,7 +116,7 @@ export default {
           } else {
             answerText = this.responses[question.id];
           }
-          return axios.post('http://127.0.0.1:8000/polls/answers/', {
+          return axios.post('http://13.125.28.173:8000/polls/answers/', {
             response: responseId,
             question: question.id,
             text: answerText

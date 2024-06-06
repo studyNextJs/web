@@ -139,7 +139,7 @@ export default {
     async stopSurvey() {
       const surveyId = this.$route.params.id;
       try {
-        const response = await axios.patch(`http://127.0.0.1:8000/polls/surveys/${surveyId}/complete/`, { completed: true });
+        const response = await axios.patch(`http://13.125.28.173:8000/polls/surveys/${surveyId}/complete/`, { completed: true });
         if (response && response.data) {
           this.survey.completed = true;
         }
@@ -150,7 +150,7 @@ export default {
     async restartSurvey() {
       const surveyId = this.$route.params.id;
       try {
-        const response = await axios.patch(`http://127.0.0.1:8000/polls/surveys/${surveyId}/start/`, { completed: false });
+        const response = await axios.patch(`http://13.125.28.173:8000/polls/surveys/${surveyId}/start/`, { completed: false });
         if (response && response.data) {
           this.survey.completed = false;
         }
@@ -161,7 +161,7 @@ export default {
     async deleteSurvey() {
       const surveyId = this.$route.params.id;
       try {
-        const response = await axios.patch(`http://127.0.0.1:8000/polls/surveys/${surveyId}/delete/`, { deleted: true });
+        const response = await axios.patch(`http://13.125.28.173:8000/polls/surveys/${surveyId}/delete/`, { deleted: true });
         if (response && response.data) {
           this.$router.push({ name: 'home' });
         }

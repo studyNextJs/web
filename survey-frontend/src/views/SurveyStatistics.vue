@@ -46,7 +46,7 @@ export default {
     async loadStatistics() {
       const surveyId = this.$route.params.id;
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/polls/surveys/${surveyId}/statistics/`);
+        const response = await axios.get(`http://13.125.28.173:8000/polls/surveys/${surveyId}/statistics/`);
         this.statistics = response.data;
       } catch (error) {
         console.error('Error loading statistics:', error.response?.data || error.message);

@@ -38,12 +38,12 @@ export default {
     }
   },
   created() {
-    axios.get('http://127.0.0.1:8000/polls/surveys/')
+    axios.get(`http://13.125.28.173:8000/polls/surveys/`)
       .then(response => {
         this.surveys = response.data;
       })
       .catch(error => {
-        console.error(error);
+        console.error('Error fetching surveys:', error);
       });
   }
 };

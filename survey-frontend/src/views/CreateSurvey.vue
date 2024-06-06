@@ -133,7 +133,7 @@ export default {
     },
     async createSurvey() {
       try {
-        const response = await axios.post('http://127.0.0.1:8000/polls/surveys/', this.survey);
+        const response = await axios.post('http://13.125.28.173:8000/polls/surveys/', this.survey);
         const surveyId = response.data.id;
         this.$router.push({ name: 'survey', params: { id: surveyId } });
       } catch (error) {
