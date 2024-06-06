@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 
 # Load environment variables
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ENVIRONMENT = os.getenv('DJANGO_ENVIRONMENT', 'development')
-env_file = BASE_DIR / ('.env' if ENVIRONMENT == 'production' else '.env.development')
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
+env_file = os.path.join(BASE_DIR, '.env' if ENVIRONMENT == 'production' else '.env.development')
 
 # Ensure to load the .env file from the correct path
 load_dotenv(dotenv_path=env_file)
