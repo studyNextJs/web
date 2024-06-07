@@ -1,12 +1,11 @@
-const { defineConfig } = require('@vue/cli-service')
+const { defineConfig } = require('@vue/cli-service');
 
 module.exports = defineConfig({
-  publicPath: '',
   transpileDependencies: ['vuetify'],
   devServer: {
     proxy: {
       '/polls': {
-        target: process.env.VUE_APP_API_BASE_URL,  
+        target: '/',  // 상대 경로로 수정
         changeOrigin: true,
       }
     }
