@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import CreateSurvey from '../views/CreateSurvey.vue';
 import SurveyDetailView from '../views/Survey.vue';
@@ -54,7 +54,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHashHistory(), // history 모드를 사용하기 위해 createWebHashHistory를 사용합니다.
   routes
 });
 
