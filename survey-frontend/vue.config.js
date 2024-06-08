@@ -11,7 +11,7 @@ module.exports = defineConfig({
   devServer: {
     proxy: {
       '/polls': {
-        target: process.env.VUE_APP_API_BASE_URL,
+        target: 'https://seulgi97.duckdns.org',  
         changeOrigin: true,
       },
     },
