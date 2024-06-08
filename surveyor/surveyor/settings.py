@@ -24,6 +24,13 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['seulgi97.duckdns.org', 'www.seulgi97.duckdns.org', '127.0.0.1', 'localhost', '13.125.28.173']
 
+CORS_ALLOWED_ORIGINS = [
+    'https://seulgi97.duckdns.org',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://seulgi97.duckdns.org',
+]
 
 
 # Application definition

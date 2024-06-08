@@ -3,9 +3,12 @@ import App from './App.vue';
 import router from './router';
 import axios from 'axios';
 import vuetify from './plugins/vuetify';
-import store from './store'; // 상대 경로로 수정
+import store from './store';
 import 'vuetify/styles';
 import '@mdi/font/css/materialdesignicons.css';
+
+axios.defaults.baseURL = 'https://seulgi97.duckdns.org/polls';
+axios.defaults.withCredentials = true;
 
 const app = createApp(App)
   .use(router)
