@@ -59,7 +59,7 @@ export default {
   },
   methods: {
     fetchSurveys() {
-      axios.get('http://13.125.28.173:8000/polls/surveys/')
+      axios.get('https://seulgi97.duckdns.org/polls/surveys/')
         .then(response => {
           console.log(response.data); // 받아온 데이터를 콘솔에 출력하여 확인
           this.surveys = response.data;

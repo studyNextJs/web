@@ -38,7 +38,7 @@ export default {
     }
   },
   created() {
-    axios.get(`http://13.125.28.173:8000/polls/surveys/`)
+    axios.get(`https://seulgi97.duckdns.org/polls/surveys/`)
       .then(response => {
         this.surveys = response.data;
       })

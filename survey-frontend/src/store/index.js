@@ -47,7 +47,7 @@ const store = createStore({
   actions: {
     async loadSurvey({ commit }, surveyId) {
       try {
-        const response = await axios.get(`http://13.125.28.173:8000/polls/surveys/${surveyId}/`);
+        const response = await axios.get(`https://seulgi97.duckdns.org/polls/surveys/${surveyId}/`);
         commit('setSurvey', response.data);
       } catch (error) {
         console.error('Error loading survey:', error.response?.data || error.message);
@@ -77,7 +77,7 @@ const store = createStore({
       };
 
       try {
-        await axios.put(`http://13.125.28.173:8000/polls/surveys/${surveyId}/`, surveyData);
+        await axios.put(`https://seulgi97.duckdns.org/polls/surveys/${surveyId}/`, surveyData);
       } catch (error) {
         console.error('Error saving survey:', error.response?.data || error.message);
       }

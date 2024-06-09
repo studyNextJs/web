@@ -32,7 +32,7 @@ export default {
   },
   created() {
     const surveyId = this.$route.params.id;
-    axios.get(`http://13.125.28.173:8000/polls/surveys/${surveyId}/`)
+    axios.get(`https://seulgi97.duckdns.org/polls/surveys/${surveyId}/`)
       .then(response => {
         this.survey = response.data;
       })
