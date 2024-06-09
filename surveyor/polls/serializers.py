@@ -11,7 +11,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['id', 'text', 'question_type', 'required', 'choices', 'survey', 'deleted']
+        fields = ['id', 'text', 'question_type', 'required', 'choices', 'deleted']
 
     def create(self, validated_data):
         choices_data = validated_data.pop('choices', [])
@@ -31,10 +31,8 @@ class SurveySerializer(serializers.ModelSerializer):
         questions_data = validated_data.pop('questions', [])
         survey = Survey.objects.create(**validated_data)
         for question_data in questions_data:
-            choices_data = question_data.pop('choices', [])
-            question = Question.objects.create(survey=survey, **question_data)
-            for choice_data in choices_data:
-                Choice.objects.create(question=question, **choice_data)
+            question_data['survey'] = survey.id
+            Question.objects.create(**question_data)
         return survey
 
     def update(self, instance, validated_data):
