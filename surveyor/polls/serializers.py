@@ -31,8 +31,9 @@ class SurveySerializer(serializers.ModelSerializer):
         questions_data = validated_data.pop('questions', [])
         survey = Survey.objects.create(**validated_data)
         for question_data in questions_data:
-            question_data['survey'] = survey
-            Question.objects.create(**question_data)
+            choices_data = question_data.pop('choices', [])
+            question = Question.objects.create(survey=survey, **question_data)
+            question.choices.set([Choice.objects.create(question=question, **choice_data) for choice_data in choices_data])
         return survey
 
     def update(self, instance, validated_data):
@@ -77,8 +78,7 @@ class SurveySerializer(serializers.ModelSerializer):
                 choices_data = question_data.pop('choices', [])
                 question_data.pop('survey', None)
                 new_question = Question.objects.create(survey=instance, **question_data)
-                for choice_data in choices_data:
-                    Choice.objects.create(question=new_question, **choice_data)
+                new_question.choices.set([Choice.objects.create(question=new_question, **choice_data) for choice_data in choices_data])
 
         for question_id in existing_question_ids:
             if question_id not in new_question_ids:
