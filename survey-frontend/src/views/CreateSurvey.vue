@@ -135,6 +135,12 @@ export default {
       try {
         const response = await axios.post('https://seulgi97.duckdns.org/polls/surveys/', this.survey);
         const surveyId = response.data.id;
+
+        // Update questions with survey ID
+        this.survey.questions.forEach(question => {
+          question.survey = surveyId;
+        });
+
         this.$router.push({ name: 'survey', params: { id: surveyId } });
       } catch (error) {
         console.error('Error creating survey:', error.response.data);
