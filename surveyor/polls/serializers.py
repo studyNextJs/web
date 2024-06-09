@@ -31,7 +31,7 @@ class SurveySerializer(serializers.ModelSerializer):
         questions_data = validated_data.pop('questions', [])
         survey = Survey.objects.create(**validated_data)
         for question_data in questions_data:
-            question_data['survey'] = survey.id
+            question_data['survey'] = survey
             Question.objects.create(**question_data)
         return survey
 
